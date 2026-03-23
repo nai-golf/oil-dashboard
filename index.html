@@ -14,7 +14,6 @@
     header p{font-size:12px;color:#64748b;margin-top:3px}
     .header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
     
-    /* Filter Bar */
     .filter-bar{padding:14px 28px;background:#0f172a;border-bottom:1px solid #1e293b;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
     .filter-bar label{font-size:12px;color:#64748b}
     .filter-btn{padding:6px 14px;border-radius:6px;border:1px solid #334155;background:#1e293b;color:#94a3b8;font-size:12px;cursor:pointer;transition:all .2s}
@@ -24,7 +23,6 @@
     .apply-btn{padding:6px 16px;border-radius:6px;border:none;background:#0ea5e9;color:#fff;font-size:12px;cursor:pointer;font-weight:600}
     .apply-btn:hover{background:#0284c7}
 
-    /* Cards */
     .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;padding:20px 28px 0}
     .card{background:#1e293b;border-radius:12px;padding:18px}
     .card .label{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.5px}
@@ -34,13 +32,10 @@
     .card.purple .value{color:#a78bfa}
     .card.orange .value{color:#fb923c}
 
-    /* Sections */
     .section{padding:20px 28px}
     .section h2{font-size:12px;font-weight:600;color:#64748b;margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px}
     .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:0}
-    .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0}
 
-    /* Bar list */
     .bar-list{display:flex;flex-direction:column;gap:8px}
     .bar-item{display:flex;align-items:center;gap:10px}
     .bar-item .name{font-size:12px;color:#cbd5e1;width:110px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -50,25 +45,21 @@
     .bar-fill.purple{background:#a78bfa}
     .bar-item .count{font-size:11px;color:#64748b;width:28px;text-align:right}
 
-    /* Chart */
     .chart-wrap{background:#1e293b;border-radius:12px;padding:18px;margin:0 28px}
     .chart-wrap canvas{max-height:200px}
 
-    /* Heatmap */
     .heatmap-wrap{background:#1e293b;border-radius:12px;padding:18px;margin:0 28px}
     .heatmap{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;margin-top:8px}
-    .hm-cell{aspect-ratio:1;border-radius:3px;background:#0f172a;position:relative;cursor:default;transition:transform .1s}
+    .hm-cell{aspect-ratio:1;border-radius:3px;background:#0f172a;cursor:default;transition:transform .1s}
     .hm-cell:hover{transform:scale(1.3);z-index:10}
     .hm-label{display:flex;justify-content:space-between;margin-top:6px}
     .hm-label span{font-size:10px;color:#475569}
 
-    /* Map placeholder */
     .country-list{display:grid;grid-template-columns:1fr 1fr;gap:6px}
     .country-item{background:#0f172a;border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center}
     .country-item .cname{font-size:12px;color:#cbd5e1}
     .country-item .ccount{font-size:13px;font-weight:600;color:#38bdf8}
 
-    /* Table */
     .table-wrap{overflow-x:auto;margin:0 28px 28px;background:#1e293b;border-radius:12px}
     table{width:100%;border-collapse:collapse;font-size:12px}
     th{text-align:left;color:#64748b;font-weight:500;padding:10px 14px;border-bottom:1px solid #0f172a;white-space:nowrap}
@@ -79,14 +70,13 @@
     .badge.new{background:#0ea5e920;color:#38bdf8}
     .badge.returning{background:#a78bfa20;color:#a78bfa}
 
-    /* Refresh */
     .refresh-btn{background:#1e293b;border:1px solid #334155;color:#94a3b8;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer}
     .refresh-btn:hover{background:#334155}
     .last-update{font-size:11px;color:#475569}
     .loading-txt{text-align:center;padding:60px;color:#475569}
     
     @media(max-width:768px){
-      .grid-2,.grid-3{grid-template-columns:1fr}
+      .grid-2{grid-template-columns:1fr}
       .country-list{grid-template-columns:1fr}
       .cards{padding:16px}
       .section{padding:16px}
@@ -107,13 +97,12 @@
   </div>
 </header>
 
-<!-- Filter Bar -->
 <div class="filter-bar">
   <label>ช่วงเวลา:</label>
-  <button class="filter-btn active" onclick="setRange('today')">วันนี้</button>
-  <button class="filter-btn" onclick="setRange('7d')">7 วัน</button>
-  <button class="filter-btn" onclick="setRange('30d')">30 วัน</button>
-  <button class="filter-btn" onclick="setRange('all')">ทั้งหมด</button>
+  <button class="filter-btn active" onclick="setRange('today',this)">วันนี้</button>
+  <button class="filter-btn" onclick="setRange('7d',this)">7 วัน</button>
+  <button class="filter-btn" onclick="setRange('30d',this)">30 วัน</button>
+  <button class="filter-btn" onclick="setRange('all',this)">ทั้งหมด</button>
   <div class="filter-sep"></div>
   <label>กำหนดเอง:</label>
   <input type="date" id="dateFrom">
@@ -154,48 +143,33 @@ function countBy(rows, fn) {
   rows.forEach(r => { const k = fn(r); m[k] = (m[k]||0)+1; });
   return Object.entries(m).sort((a,b) => b[1]-a[1]);
 }
-function fmtDate(str) {
-  // แปลง "2026-03-23 22:01:09" หรือ ISO → วันที่ไทย
-  const d = new Date(String(str).replace(' ','T'));
-  if (isNaN(d)) return str;
-  return d.toLocaleString('th-TH', {
-    timeZone: 'Asia/Bangkok',
-    year: 'numeric', month: 'short', day: 'numeric',
-    hour: '2-digit', minute: '2-digit'
-  });
-}
+
+// แปลง "2026-03-24 5:12:33" → Date object (ถือว่าเป็นเวลาไทยอยู่แล้ว)
 function toLocalDate(str) {
   if (!str) return null;
   const s = String(str).trim();
-  
-  // รองรับ "2026-03-24 5:12:33" และ "2026-03-24 05:12:33"
   const m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{2}):(\d{2})/);
   if (m) {
-    // สร้าง Date โดยถือว่าเวลาใน Sheet คือเวลาไทยอยู่แล้ว (Apps Script บันทึก UTC+7)
     return new Date(
       parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3]),
       parseInt(m[4]), parseInt(m[5]), parseInt(m[6])
     );
   }
-  
-  // fallback ISO
-  const d = new Date(s.replace(' ', 'T'));
+  const d = new Date(s.replace(' ','T'));
   return isNaN(d) ? null : d;
 }
 
 function dateKey(str) {
   const d = toLocalDate(str);
   if (!d) return '';
-  const y = d.getFullYear();
-  const mo = String(d.getMonth()+1).padStart(2,'0');
-  const day = String(d.getDate()).padStart(2,'0');
-  return `${y}-${mo}-${day}`;
+  return d.getFullYear() + '-' +
+    String(d.getMonth()+1).padStart(2,'0') + '-' +
+    String(d.getDate()).padStart(2,'0');
 }
 
 function hourKey(str) {
   const d = toLocalDate(str);
-  if (!d) return -1;
-  return d.getHours(); // ใช้ local hours ตรงๆ (ไม่ต้อง +7 แล้ว)
+  return d ? d.getHours() : -1;
 }
 
 function fmtDate(str) {
@@ -207,40 +181,34 @@ function fmtDate(str) {
   });
 }
 
+// วันที่ล่าสุดในข้อมูล (ใช้แทน "วันนี้" เพื่อหลีกเลี่ยงปัญหา timezone)
+function getLatestDateInData() {
+  if (!allRows || allRows.length === 0) return getTodayTH();
+  const dates = allRows.map(r => dateKey(r.time)).filter(d => d !== '').sort();
+  return dates[dates.length - 1];
+}
 
+// วันที่ปัจจุบันเวลาไทย (fallback)
 function getTodayTH() {
-  // ใช้ Intl เพื่อให้ได้วันที่ไทยจริงๆ ไม่ว่า browser จะอยู่ timezone ไหน
-  const now = new Date();
-  const parts = new Intl.DateTimeFormat('en-CA', {
+  return new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Bangkok',
     year: 'numeric', month: '2-digit', day: '2-digit'
-  }).format(now); // คืน "2026-03-24"
-  return parts;
+  }).format(new Date());
 }
 
 function shiftDate(dateStr, days) {
   const d = new Date(dateStr + 'T00:00:00');
   d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0, 10);
+  return d.toISOString().slice(0,10);
 }
 
-
-
-
-
-
-
-  
 // ── Filter ───────────────────────────────────────────────
 function filterRows(rows) {
-  // คำนวณ "วันนี้" เวลาไทยจาก server time ของ row ล่าสุด
-  const todayStr = getTodayTH();
+  // "วันนี้" = วันล่าสุดในข้อมูล ป้องกัน timezone ต่างกัน
+  const todayStr = getLatestDateInData();
 
   if (customFrom && customTo) {
-    return rows.filter(r => {
-      const d = dateKey(r.time);
-      return d >= customFrom && d <= customTo;
-    });
+    return rows.filter(r => { const d = dateKey(r.time); return d >= customFrom && d <= customTo; });
   }
   if (currentRange === 'today') return rows.filter(r => dateKey(r.time) === todayStr);
   if (currentRange === '7d') {
@@ -254,10 +222,10 @@ function filterRows(rows) {
   return rows;
 }
 
-function setRange(r) {
+function setRange(r, btn) {
   currentRange = r; customFrom = null; customTo = null;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  btn.classList.add('active');
   render(allRows);
 }
 function applyCustomRange() {
@@ -287,11 +255,10 @@ function renderDailyChart(rows) {
   rows.forEach(r => { const d = dateKey(r.time); if(d) counts[d]=(counts[d]||0)+1; });
   const sorted = Object.entries(counts).sort((a,b) => a[0]>b[0]?1:-1);
   const labels = sorted.map(([d]) => {
-    const dt = new Date(d + 'T00:00:00Z');
-    return dt.toLocaleDateString('th-TH',{month:'short',day:'numeric'});
+    const [y,mo,day] = d.split('-');
+    return new Date(+y, +mo-1, +day).toLocaleDateString('th-TH',{month:'short',day:'numeric'});
   });
   const data = sorted.map(([,v]) => v);
-
   const ctx = document.getElementById('dailyChart');
   if (!ctx) return;
   if (dailyChart) dailyChart.destroy();
@@ -299,21 +266,14 @@ function renderDailyChart(rows) {
     type: 'bar',
     data: {
       labels,
-      datasets: [{
-        label: 'ผู้เข้าชม',
-        data,
-        backgroundColor: '#0ea5e9aa',
-        borderColor: '#38bdf8',
-        borderWidth: 1,
-        borderRadius: 4
-      }]
+      datasets: [{ label:'ผู้เข้าชม', data, backgroundColor:'#0ea5e9aa', borderColor:'#38bdf8', borderWidth:1, borderRadius:4 }]
     },
     options: {
       responsive: true,
-      plugins: { legend: { display: false } },
+      plugins: { legend: { display:false } },
       scales: {
-        x: { ticks: { color:'#64748b', font:{size:11} }, grid: { color:'#1e293b' } },
-        y: { ticks: { color:'#64748b', font:{size:11} }, grid: { color:'#1e293b22' }, beginAtZero: true }
+        x: { ticks:{color:'#64748b',font:{size:11}}, grid:{color:'#1e293b'} },
+        y: { ticks:{color:'#64748b',font:{size:11}}, grid:{color:'#1e293b22'}, beginAtZero:true }
       }
     }
   });
@@ -325,9 +285,7 @@ function renderHeatmap(rows) {
   rows.forEach(r => { const h = hourKey(r.time); if(h>=0) counts[h]++; });
   const max = Math.max(...counts, 1);
   const cells = counts.map((c,h) => {
-    const intensity = c/max;
-    const alpha = Math.round(intensity * 220);
-    const bg = c === 0 ? '#0f172a' : `rgba(14,165,233,${(intensity*0.85+0.15).toFixed(2)})`;
+    const bg = c === 0 ? '#0f172a' : `rgba(14,165,233,${(c/max*0.85+0.15).toFixed(2)})`;
     return `<div class="hm-cell" style="background:${bg}" title="${h}:00 น. — ${c} ครั้ง"></div>`;
   }).join('');
   const el = document.getElementById('heatmapCells');
@@ -337,23 +295,21 @@ function renderHeatmap(rows) {
 // ── Render ────────────────────────────────────────────────
 function render(rows) {
   const filtered = filterRows(rows);
-  const total = filtered.length;
+  const total    = filtered.length;
   const totalAll = rows.length;
-
   const returning = filtered.filter(r => r.visitor === 'returning').length;
-  const newV = total - returning;
-  const retPct = total ? Math.round(returning/total*100) : 0;
+  const newV      = total - returning;
+  const retPct    = total ? Math.round(returning/total*100) : 0;
 
-  const devices  = countBy(filtered, r => parseUA(r.ua));
-  const browsers = countBy(filtered, r => parseBrowser(r.ua));
-  const refs     = countBy(filtered, r => parseRef(r.ref));
-  const langs    = countBy(filtered, r => (r.lang||'Unknown').split('-')[0].toUpperCase());
+  const devices   = countBy(filtered, r => parseUA(r.ua));
+  const browsers  = countBy(filtered, r => parseBrowser(r.ua));
+  const refs      = countBy(filtered, r => parseRef(r.ref));
+  const langs     = countBy(filtered, r => (r.lang||'Unknown').split('-')[0].toUpperCase());
   const countries = countBy(filtered, r => r.country || '(ไม่ทราบ)');
-  const cities   = countBy(filtered, r => r.city || '(ไม่ทราบ)');
-  const recent   = [...filtered].reverse().slice(0,50);
+  const cities    = countBy(filtered, r => r.city || '(ไม่ทราบ)');
+  const recent    = [...filtered].reverse().slice(0,50);
 
   document.getElementById('content').innerHTML = `
-    <!-- Cards -->
     <div class="cards">
       <div class="card">
         <div class="label">เข้าชม (ช่วงที่เลือก)</div>
@@ -382,11 +338,9 @@ function render(rows) {
       </div>
     </div>
 
-    <!-- Daily Chart -->
     <div class="section"><h2>📈 ผู้เข้าชมรายวัน</h2></div>
     <div class="chart-wrap"><canvas id="dailyChart"></canvas></div>
 
-    <!-- Heatmap -->
     <div class="section" style="padding-bottom:8px"><h2>🕐 ช่วงเวลาที่นิยมเข้า (เวลาไทย)</h2></div>
     <div class="heatmap-wrap">
       <div class="heatmap" id="heatmapCells"></div>
@@ -400,7 +354,6 @@ function render(rows) {
       </div>
     </div>
 
-    <!-- Device / Browser / Ref / Lang -->
     <div class="grid-2">
       <div class="section"><h2>📱 อุปกรณ์</h2><div class="bar-list">${barList(devices)}</div></div>
       <div class="section"><h2>🌐 Browser</h2><div class="bar-list">${barList(browsers,'purple')}</div></div>
@@ -408,7 +361,6 @@ function render(rows) {
       <div class="section"><h2>💬 ภาษา Browser</h2><div class="bar-list">${barList(langs)}</div></div>
     </div>
 
-    <!-- Country / City -->
     <div class="grid-2">
       <div class="section">
         <h2>🌍 ประเทศ</h2>
@@ -424,7 +376,6 @@ function render(rows) {
       </div>
     </div>
 
-    <!-- Table -->
     <div class="section"><h2>📋 รายการล่าสุด (50 รายการ)</h2></div>
     <div class="table-wrap">
       <table>
@@ -455,6 +406,12 @@ async function loadData() {
     const res = await fetch(LOGGER_URL + '?action=data');
     const data = await res.json();
     allRows = data.rows || [];
+
+    // set date inputs หลัง allRows พร้อมแล้ว ใช้วันล่าสุดในข้อมูล
+    const latestDay = getLatestDateInData();
+    document.getElementById('dateFrom').value = shiftDate(latestDay, -6);
+    document.getElementById('dateTo').value   = latestDay;
+
     render(allRows);
     document.getElementById('lastUpdate').textContent =
       'อัปเดต: ' + new Date().toLocaleTimeString('th-TH');
@@ -463,12 +420,6 @@ async function loadData() {
       '<div class="loading-txt">❌ โหลดข้อมูลไม่ได้ — ตรวจสอบ LOGGER_URL</div>';
   }
 }
-
-// set default date inputs
-const today = getTodayTH();
-const week  = shiftDate(today, -6);
-document.getElementById('dateFrom').value = week;
-document.getElementById('dateTo').value   = today;
 
 loadData();
 </script>
