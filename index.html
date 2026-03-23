@@ -258,8 +258,13 @@
   }
 
   function todayStr() {
-    return getBKKNow().toISOString().slice(0, 10);
-  }
+  // ใช้ตัวเลขจาก BKK time แปลงเป็น string เอง ไม่ผ่าน ISO
+  const d = getBKKNow();
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth()+1).padStart(2,'0');
+  const day = String(d.getUTCDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
 
   function parseUA(ua = '') {
     if (/Mobile|Android|iPhone/.test(ua)) return { icon: '📱', label: 'Mobile' };
