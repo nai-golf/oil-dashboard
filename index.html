@@ -30,7 +30,6 @@
       padding-bottom: 32px;
     }
 
-    /* Header */
     .header {
       padding: 20px 20px 16px;
       border-bottom: 1px solid var(--border);
@@ -42,207 +41,75 @@
       background: var(--bg);
       z-index: 10;
     }
-    .header-left h1 {
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--text);
-      letter-spacing: -.3px;
-    }
-    .header-left p {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 2px;
-      font-family: 'IBM Plex Mono', monospace;
-    }
+    .header-left h1 { font-size: 17px; font-weight: 700; color: var(--text); letter-spacing: -.3px; }
+    .header-left p { font-size: 11px; color: var(--muted); margin-top: 2px; font-family: 'IBM Plex Mono', monospace; }
     .refresh-btn {
-      width: 36px; height: 36px;
-      border-radius: 10px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--muted);
-      font-size: 16px;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: all .2s;
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--muted); font-size: 16px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; transition: all .2s;
     }
     .refresh-btn:active { transform: scale(.92); background: var(--dim); }
     .refresh-btn.spinning { animation: spin .6s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Summary cards */
     .cards {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      padding: 16px 16px 0;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; padding: 16px 16px 0;
     }
     .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 16px;
-      position: relative;
-      overflow: hidden;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px; position: relative; overflow: hidden;
     }
     .card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
       background: linear-gradient(90deg, var(--accent), var(--accent2));
-      opacity: 0;
-      transition: opacity .3s;
+      opacity: 0; transition: opacity .3s;
     }
     .card.highlight::before { opacity: 1; }
-    .card .c-label {
-      font-size: 10px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .8px;
-      font-weight: 600;
-    }
-    .card .c-value {
-      font-size: 34px;
-      font-weight: 700;
-      color: var(--accent);
-      line-height: 1.1;
-      margin-top: 6px;
-      font-family: 'IBM Plex Mono', monospace;
-    }
-    .card .c-sub {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 4px;
-    }
+    .card .c-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; font-weight: 600; }
+    .card .c-value { font-size: 34px; font-weight: 700; color: var(--accent); line-height: 1.1; margin-top: 6px; font-family: 'IBM Plex Mono', monospace; }
+    .card .c-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
 
-    /* Section */
-    .section {
-      padding: 20px 16px 0;
-    }
-    .section-title {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .8px;
-      margin-bottom: 12px;
-    }
+    .section { padding: 20px 16px 0; }
+    .section-title { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 12px; }
 
-    /* Hourly chart */
-    .chart-wrap {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 16px;
-    }
-    .chart-bars {
-      display: flex;
-      align-items: flex-end;
-      gap: 4px;
-      height: 80px;
-    }
-    .chart-col {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      height: 100%;
-      justify-content: flex-end;
-    }
+    .chart-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+    .chart-bars { display: flex; align-items: flex-end; gap: 3px; height: 80px; }
+    .chart-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
     .chart-bar {
-      width: 100%;
-      border-radius: 4px 4px 2px 2px;
-      background: var(--dim);
-      min-height: 3px;
-      transition: height .5s cubic-bezier(.34,1.56,.64,1);
-      position: relative;
-      cursor: pointer;
+      width: 100%; border-radius: 4px 4px 2px 2px;
+      background: var(--dim); min-height: 3px;
+      transition: height .5s cubic-bezier(.34,1.56,.64,1); cursor: pointer;
     }
     .chart-bar.has-data { background: linear-gradient(180deg, var(--accent), var(--accent2)); }
     .chart-bar.current { background: linear-gradient(180deg, #fff, var(--accent)); box-shadow: 0 0 8px var(--accent); }
-    .chart-label {
-      font-size: 8px;
-      color: var(--muted);
-      font-family: 'IBM Plex Mono', monospace;
-      white-space: nowrap;
-    }
-    .chart-peak {
-      font-size: 10px;
-      color: var(--muted);
-      margin-top: 10px;
-      font-family: 'IBM Plex Mono', monospace;
-    }
+    .chart-label { font-size: 8px; color: var(--muted); font-family: 'IBM Plex Mono', monospace; white-space: nowrap; }
+    .chart-peak { font-size: 10px; color: var(--muted); margin-top: 10px; font-family: 'IBM Plex Mono', monospace; }
 
-    /* Log list */
-    .log-list {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+    .log-list { display: flex; flex-direction: column; gap: 6px; }
     .log-item {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px 14px;
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      align-items: center;
-      gap: 10px;
-      animation: fadeUp .3s ease both;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 12px 14px;
+      display: grid; grid-template-columns: auto 1fr auto;
+      align-items: center; gap: 10px; animation: fadeUp .3s ease both;
     }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(8px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .log-icon {
-      font-size: 20px;
-      width: 32px;
-      text-align: center;
-    }
-    .log-info .log-time {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text);
-      font-family: 'IBM Plex Mono', monospace;
-    }
-    .log-info .log-detail {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-    .log-badge {
-      font-size: 10px;
-      padding: 3px 8px;
-      border-radius: 20px;
-      background: var(--dim);
-      color: var(--muted);
-      font-family: 'IBM Plex Mono', monospace;
-      white-space: nowrap;
-    }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .log-icon { font-size: 20px; width: 32px; text-align: center; }
+    .log-info .log-time { font-size: 13px; font-weight: 600; color: var(--text); font-family: 'IBM Plex Mono', monospace; }
+    .log-info .log-detail { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .log-badge { font-size: 10px; padding: 3px 8px; border-radius: 20px; background: var(--dim); color: var(--muted); font-family: 'IBM Plex Mono', monospace; white-space: nowrap; }
 
-    .empty-state {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--muted);
-      font-size: 13px;
-    }
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13px; }
     .empty-state .emoji { font-size: 32px; display: block; margin-bottom: 8px; }
-
-    .date-badge {
-      text-align: center;
-      font-size: 12px;
-      color: var(--muted);
-      padding: 12px 0 0;
-      font-family: 'IBM Plex Mono', monospace;
-    }
+    .date-badge { text-align: center; font-size: 12px; color: var(--muted); padding: 12px 0 0; font-family: 'IBM Plex Mono', monospace; }
   </style>
 </head>
 <body>
 
 <div class="header">
   <div class="header-left">
-    <h1>📊 Oil Visits</h1>
+    <h1>ปั๊มน้ำมันหาดใหญ่-Oil Dashboard ⛽</h1>
     <p id="lastUpdate">กำลังโหลด...</p>
   </div>
   <button class="refresh-btn" id="refreshBtn" onclick="loadData()">🔄</button>
@@ -254,17 +121,28 @@
   const LOGGER_URL = 'https://script.google.com/macros/s/AKfycbxz4Ha1sPN2xy1qTNiba0-vg1KYFaq36uTuddbphGfr3DR0eX5WOagqkxPZut-Zb3eOQA/exec';
 
   function getBKKNow() {
-    return new Date(Date.now() + 7 * 3600000);
+    const now = new Date();
+    const p = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Bangkok',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+      hour12: false
+    }).formatToParts(now);
+    const v = t => p.find(x => x.type === t).value;
+    return new Date(`${v('year')}-${v('month')}-${v('day')}T${v('hour')}:${v('minute')}:${v('second')}`);
   }
 
-  function todayStr() {
-  // ใช้ตัวเลขจาก BKK time แปลงเป็น string เอง ไม่ผ่าน ISO
-  const d = getBKKNow();
-  const y = d.getUTCFullYear();
-  const m = String(d.getUTCMonth()+1).padStart(2,'0');
-  const day = String(d.getUTCDate()).padStart(2,'0');
-  return `${y}-${m}-${day}`;
-}
+  function dateStr(d) {
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  function todayStr() { return dateStr(getBKKNow()); }
+
+  function yesterdayStr() {
+    const d = getBKKNow();
+    d.setDate(d.getDate() - 1);
+    return dateStr(d);
+  }
 
   function parseUA(ua = '') {
     if (/Mobile|Android|iPhone/.test(ua)) return { icon: '📱', label: 'Mobile' };
@@ -287,128 +165,120 @@
   }
 
   function formatTime(timeStr) {
-    // timeStr: "2025-06-20 14:35:22"
     const parts = String(timeStr).split(' ');
     return parts[1] ? parts[1].slice(0, 5) : String(timeStr).slice(11, 16);
   }
 
-  function buildHourlyData(todayRows) {
-    const hours = Array(24).fill(0);
-    todayRows.forEach(r => {
-      const t = String(r.time);
-      const hPart = t.split(' ')[1] || t.slice(11, 13);
-      const h = parseInt(hPart.slice(0, 2));
-      if (!isNaN(h) && h >= 0 && h < 24) hours[h]++;
-    });
-    return hours;
+  function getHour(timeStr) {
+    const t = String(timeStr);
+    const hPart = t.split(' ')[1] || t.slice(11, 13);
+    return parseInt(hPart.slice(0, 2));
   }
 
-  function renderChart(hourly) {
-    const currentHour = getBKKNow().getHours();
-    const max = Math.max(...hourly, 1);
-    const peakHour = hourly.indexOf(Math.max(...hourly));
+  // กราฟ 24 slot เริ่ม 06:00 → 05:00
+  // slot 0=06, slot 1=07, ..., slot 17=23, slot 18=00, slot 19=01, ..., slot 23=05
+  function hourToSlot(h) {
+    return h >= 6 ? h - 6 : h + 18;
+  }
 
-    const bars = hourly.map((count, h) => {
+  function slotToLabel(s) {
+    const h = s < 18 ? s + 6 : s - 18;
+    return String(h).padStart(2, '0');
+  }
+
+  function buildSlots(rows) {
+    const slots = Array(24).fill(0);
+    rows.forEach(r => {
+      const h = getHour(r.time);
+      if (!isNaN(h)) slots[hourToSlot(h)]++;
+    });
+    return slots;
+  }
+
+  function renderChart(todayRows) {
+    const currentSlot = hourToSlot(getBKKNow().getHours());
+    const slots = buildSlots(todayRows);
+    const max = Math.max(...slots, 1);
+    const peakSlot = slots.indexOf(Math.max(...slots));
+    const peakCount = Math.max(...slots);
+
+    const bars = slots.map((count, s) => {
       const pct = Math.max((count / max) * 100, count > 0 ? 8 : 3);
-      const isCurrent = h === currentHour;
-      const hasData = count > 0;
-      const cls = isCurrent ? 'current' : hasData ? 'has-data' : '';
-      // Show labels every 4 hours: 0,4,8,12,16,20
-      const showLabel = h % 4 === 0;
-      return `
-        <div class="chart-col">
-          <div class="chart-bar ${cls}" style="height:${pct}%" title="${h}:00 — ${count} ครั้ง"></div>
-          <div class="chart-label">${showLabel ? String(h).padStart(2,'0') : ''}</div>
-        </div>`;
+      const cls = s === currentSlot ? 'current' : count > 0 ? 'has-data' : '';
+      // label ทุก 6 slot → แสดง 06, 12, 18, 00
+      const label = s % 6 === 0 ? slotToLabel(s) : '';
+      return `<div class="chart-col">
+        <div class="chart-bar ${cls}" style="height:${pct}%" title="${slotToLabel(s)}:00 — ${count} ครั้ง"></div>
+        <div class="chart-label">${label}</div>
+      </div>`;
     }).join('');
 
-    const peakLabel = max > 1
-      ? `ช่วงคนมากสุด ${String(peakHour).padStart(2,'0')}:00 · ${Math.max(...hourly)} ครั้ง`
+    const peakLabel = peakCount > 0
+      ? `ช่วงคนมากสุด ${slotToLabel(peakSlot)}:00 · ${peakCount} ครั้ง`
       : 'ยังไม่มีข้อมูลวันนี้';
 
-    return `
-      <div class="chart-wrap">
-        <div class="chart-bars">${bars}</div>
-        <div class="chart-peak">${peakLabel}</div>
-      </div>`;
+    return `<div class="chart-wrap">
+      <div class="chart-bars">${bars}</div>
+      <div class="chart-peak">${peakLabel}</div>
+    </div>`;
   }
 
   function renderLog(todayRows) {
-    if (todayRows.length === 0) return `
-      <div class="empty-state">
-        <span class="emoji">🌙</span>
-        ยังไม่มีผู้เข้าชมวันนี้
-      </div>`;
-
+    if (todayRows.length === 0) return `<div class="empty-state"><span class="emoji">🌙</span>ยังไม่มีผู้เข้าชมวันนี้</div>`;
     return [...todayRows].reverse().map((r, i) => {
       const dev = parseUA(r.ua);
-      const browser = parseBrowser(r.ua);
-      const ref = parseRef(r.ref);
-      const t = formatTime(r.time);
-      return `
-        <div class="log-item" style="animation-delay:${i * 30}ms">
-          <div class="log-icon">${dev.icon}</div>
-          <div class="log-info">
-            <div class="log-time">${t}</div>
-            <div class="log-detail">${browser} · ${ref}</div>
-          </div>
-          <div class="log-badge">${dev.label}</div>
-        </div>`;
+      return `<div class="log-item" style="animation-delay:${i*30}ms">
+        <div class="log-icon">${dev.icon}</div>
+        <div class="log-info">
+          <div class="log-time">${formatTime(r.time)}</div>
+          <div class="log-detail">${parseBrowser(r.ua)} · ${parseRef(r.ref)}</div>
+        </div>
+        <div class="log-badge">${dev.label}</div>
+      </div>`;
     }).join('');
   }
 
   function render(data) {
     const rows = data.rows || [];
-    const today = todayStr();
-    const todayRows = rows.filter(r => String(r.time).startsWith(today));
-    const hourly = buildHourlyData(todayRows);
-    const totalAll = rows.length;
-    const totalToday = todayRows.length;
-    const currentHour = getBKKNow().getHours();
-    const thisHour = hourly[currentHour];
+    const todayRows = rows.filter(r => String(r.time).startsWith(todayStr()));
+    const yesterdayRows = rows.filter(r => String(r.time).startsWith(yesterdayStr()));
+    const lastRow = todayRows.length > 0 ? todayRows[todayRows.length - 1] : null;
 
-    const bkkDate = getBKKNow().toLocaleDateString('th-TH', {
-      weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
-    });
+    const bkkNow = getBKKNow();
+    const bkkDate = bkkNow.toLocaleDateString('th-TH', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
 
     document.getElementById('app').innerHTML = `
       <div class="date-badge">${bkkDate}</div>
-
       <div class="cards">
         <div class="card highlight">
           <div class="c-label">วันนี้</div>
-          <div class="c-value">${totalToday}</div>
+          <div class="c-value">${todayRows.length}</div>
+          <div class="c-sub">ครั้ง</div>
+        </div>
+        <div class="card">
+          <div class="c-label">เมื่อวาน</div>
+          <div class="c-value">${yesterdayRows.length}</div>
           <div class="c-sub">ครั้ง</div>
         </div>
         <div class="card">
           <div class="c-label">ทั้งหมด</div>
-          <div class="c-value">${totalAll}</div>
+          <div class="c-value">${rows.length}</div>
           <div class="c-sub">ตั้งแต่ต้น</div>
         </div>
         <div class="card">
-          <div class="c-label">ชั่วโมงนี้</div>
-          <div class="c-value">${thisHour}</div>
-          <div class="c-sub">${String(currentHour).padStart(2,'0')}:00 น.</div>
-        </div>
-        <div class="card">
-          <div class="c-label">ช่วงนี้</div>
-          <div class="c-value" style="font-size:20px;margin-top:10px">${todayRows.length > 0 ? parseUA(todayRows[todayRows.length-1].ua).icon : '—'}</div>
-          <div class="c-sub">ล่าสุด ${todayRows.length > 0 ? formatTime(todayRows[todayRows.length-1].time) : '-'}</div>
+          <div class="c-label">ล่าสุด</div>
+          <div class="c-value" style="font-size:26px;margin-top:8px">${lastRow ? formatTime(lastRow.time) : '—'}</div>
+          <div class="c-sub">${lastRow ? parseUA(lastRow.ua).label : '-'}</div>
         </div>
       </div>
-
       <div class="section">
-        <div class="section-title">การเข้าชมรายชั่วโมง</div>
-        ${renderChart(hourly)}
+        <div class="section-title">การเข้าชมรายชั่วโมง (06:00 – 06:00)</div>
+        ${renderChart(todayRows)}
       </div>
-
       <div class="section">
-        <div class="section-title">รายการวันนี้ (${totalToday})</div>
-        <div class="log-list">
-          ${renderLog(todayRows)}
-        </div>
-      </div>
-    `;
+        <div class="section-title">รายการวันนี้ (${todayRows.length})</div>
+        <div class="log-list">${renderLog(todayRows)}</div>
+      </div>`;
   }
 
   async function loadData() {
@@ -419,15 +289,9 @@
       const data = await res.json();
       render(data);
       const t = getBKKNow();
-      const hh = String(t.getHours()).padStart(2, '0');
-      const mm = String(t.getMinutes()).padStart(2, '0');
-      document.getElementById('lastUpdate').textContent = `อัปเดต ${hh}:${mm} น.`;
+      document.getElementById('lastUpdate').textContent = `อัปเดต ${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')} น.`;
     } catch (e) {
-      document.getElementById('app').innerHTML = `
-        <div class="empty-state">
-          <span class="emoji">❌</span>
-          โหลดข้อมูลไม่ได้<br>ตรวจสอบ LOGGER_URL อีกครั้ง
-        </div>`;
+      document.getElementById('app').innerHTML = `<div class="empty-state"><span class="emoji">❌</span>โหลดข้อมูลไม่ได้<br>ตรวจสอบ LOGGER_URL อีกครั้ง</div>`;
       document.getElementById('lastUpdate').textContent = 'โหลดไม่สำเร็จ';
     } finally {
       btn.classList.remove('spinning');
