@@ -2,426 +2,434 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Oil Dashboard</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh}
-    
-    header{padding:20px 28px;border-bottom:1px solid #1e293b;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px}
-    header h1{font-size:18px;font-weight:700;color:#f8fafc}
-    header p{font-size:12px;color:#64748b;margin-top:3px}
-    .header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-    
-    .filter-bar{padding:14px 28px;background:#0f172a;border-bottom:1px solid #1e293b;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-    .filter-bar label{font-size:12px;color:#64748b}
-    .filter-btn{padding:6px 14px;border-radius:6px;border:1px solid #334155;background:#1e293b;color:#94a3b8;font-size:12px;cursor:pointer;transition:all .2s}
-    .filter-btn.active,.filter-btn:hover{background:#0ea5e9;border-color:#0ea5e9;color:#fff}
-    .filter-sep{width:1px;height:20px;background:#334155;margin:0 4px}
-    input[type=date]{padding:6px 10px;border-radius:6px;border:1px solid #334155;background:#1e293b;color:#94a3b8;font-size:12px;cursor:pointer}
-    .apply-btn{padding:6px 16px;border-radius:6px;border:none;background:#0ea5e9;color:#fff;font-size:12px;cursor:pointer;font-weight:600}
-    .apply-btn:hover{background:#0284c7}
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap');
 
-    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;padding:20px 28px 0}
-    .card{background:#1e293b;border-radius:12px;padding:18px}
-    .card .label{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.5px}
-    .card .value{font-size:32px;font-weight:700;color:#38bdf8;margin-top:6px;line-height:1}
-    .card .sub{font-size:11px;color:#475569;margin-top:5px}
-    .card.green .value{color:#34d399}
-    .card.purple .value{color:#a78bfa}
-    .card.orange .value{color:#fb923c}
+    :root {
+      --bg: #0a0e1a;
+      --card: #111827;
+      --border: #1f2937;
+      --accent: #22d3ee;
+      --accent2: #818cf8;
+      --text: #f1f5f9;
+      --muted: #64748b;
+      --dim: #1e293b;
+    }
 
-    .section{padding:20px 28px}
-    .section h2{font-size:12px;font-weight:600;color:#64748b;margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px}
-    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:0}
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-    .bar-list{display:flex;flex-direction:column;gap:8px}
-    .bar-item{display:flex;align-items:center;gap:10px}
-    .bar-item .name{font-size:12px;color:#cbd5e1;width:110px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .bar-track{flex:1;height:7px;background:#0f172a;border-radius:4px;overflow:hidden}
-    .bar-fill{height:100%;background:#38bdf8;border-radius:4px;transition:width .6s ease}
-    .bar-fill.green{background:#34d399}
-    .bar-fill.purple{background:#a78bfa}
-    .bar-item .count{font-size:11px;color:#64748b;width:28px;text-align:right}
+    body {
+      font-family: 'IBM Plex Sans Thai', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      max-width: 420px;
+      margin: 0 auto;
+      padding-bottom: 32px;
+    }
 
-    .chart-wrap{background:#1e293b;border-radius:12px;padding:18px;margin:0 28px}
-    .chart-wrap canvas{max-height:200px}
+    /* Header */
+    .header {
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 10;
+    }
+    .header-left h1 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -.3px;
+    }
+    .header-left p {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .refresh-btn {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 16px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .2s;
+    }
+    .refresh-btn:active { transform: scale(.92); background: var(--dim); }
+    .refresh-btn.spinning { animation: spin .6s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    .heatmap-wrap{background:#1e293b;border-radius:12px;padding:18px;margin:0 28px}
-    .heatmap{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;margin-top:8px}
-    .hm-cell{aspect-ratio:1;border-radius:3px;background:#0f172a;cursor:default;transition:transform .1s}
-    .hm-cell:hover{transform:scale(1.3);z-index:10}
-    .hm-label{display:flex;justify-content:space-between;margin-top:6px}
-    .hm-label span{font-size:10px;color:#475569}
+    /* Summary cards */
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 16px 16px 0;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      opacity: 0;
+      transition: opacity .3s;
+    }
+    .card.highlight::before { opacity: 1; }
+    .card .c-label {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      font-weight: 600;
+    }
+    .card .c-value {
+      font-size: 34px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1.1;
+      margin-top: 6px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .card .c-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
 
-    .country-list{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-    .country-item{background:#0f172a;border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center}
-    .country-item .cname{font-size:12px;color:#cbd5e1}
-    .country-item .ccount{font-size:13px;font-weight:600;color:#38bdf8}
+    /* Section */
+    .section {
+      padding: 20px 16px 0;
+    }
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      margin-bottom: 12px;
+    }
 
-    .table-wrap{overflow-x:auto;margin:0 28px 28px;background:#1e293b;border-radius:12px}
-    table{width:100%;border-collapse:collapse;font-size:12px}
-    th{text-align:left;color:#64748b;font-weight:500;padding:10px 14px;border-bottom:1px solid #0f172a;white-space:nowrap}
-    td{padding:9px 14px;border-bottom:1px solid #ffffff08;color:#cbd5e1;white-space:nowrap}
-    tr:last-child td{border-bottom:none}
-    tr:hover td{background:#ffffff05}
-    .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600}
-    .badge.new{background:#0ea5e920;color:#38bdf8}
-    .badge.returning{background:#a78bfa20;color:#a78bfa}
+    /* Hourly chart */
+    .chart-wrap {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .chart-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 80px;
+    }
+    .chart-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      height: 100%;
+      justify-content: flex-end;
+    }
+    .chart-bar {
+      width: 100%;
+      border-radius: 4px 4px 2px 2px;
+      background: var(--dim);
+      min-height: 3px;
+      transition: height .5s cubic-bezier(.34,1.56,.64,1);
+      position: relative;
+      cursor: pointer;
+    }
+    .chart-bar.has-data { background: linear-gradient(180deg, var(--accent), var(--accent2)); }
+    .chart-bar.current { background: linear-gradient(180deg, #fff, var(--accent)); box-shadow: 0 0 8px var(--accent); }
+    .chart-label {
+      font-size: 8px;
+      color: var(--muted);
+      font-family: 'IBM Plex Mono', monospace;
+      white-space: nowrap;
+    }
+    .chart-peak {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
 
-    .refresh-btn{background:#1e293b;border:1px solid #334155;color:#94a3b8;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer}
-    .refresh-btn:hover{background:#334155}
-    .last-update{font-size:11px;color:#475569}
-    .loading-txt{text-align:center;padding:60px;color:#475569}
-    
-    @media(max-width:768px){
-      .grid-2{grid-template-columns:1fr}
-      .country-list{grid-template-columns:1fr}
-      .cards{padding:16px}
-      .section{padding:16px}
-      .chart-wrap,.heatmap-wrap,.table-wrap{margin:0 16px}
+    /* Log list */
+    .log-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .log-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 10px;
+      animation: fadeUp .3s ease both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .log-icon {
+      font-size: 20px;
+      width: 32px;
+      text-align: center;
+    }
+    .log-info .log-time {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .log-info .log-detail {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .log-badge {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      background: var(--dim);
+      color: var(--muted);
+      font-family: 'IBM Plex Mono', monospace;
+      white-space: nowrap;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .empty-state .emoji { font-size: 32px; display: block; margin-bottom: 8px; }
+
+    .date-badge {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 12px 0 0;
+      font-family: 'IBM Plex Mono', monospace;
     }
   </style>
 </head>
 <body>
 
-<header>
-  <div>
-    <h1>📊 Oil Dashboard</h1>
-    <p>สถิติผู้เข้าชม nai-golf.github.io/oil</p>
+<div class="header">
+  <div class="header-left">
+    <h1>📊 Oil Visits</h1>
+    <p id="lastUpdate">กำลังโหลด...</p>
   </div>
-  <div class="header-right">
-    <span class="last-update" id="lastUpdate"></span>
-    <button class="refresh-btn" onclick="loadData()">🔄 Refresh</button>
-  </div>
-</header>
-
-<div class="filter-bar">
-  <label>ช่วงเวลา:</label>
-  <button class="filter-btn active" onclick="setRange('today',this)">วันนี้</button>
-  <button class="filter-btn" onclick="setRange('7d',this)">7 วัน</button>
-  <button class="filter-btn" onclick="setRange('30d',this)">30 วัน</button>
-  <button class="filter-btn" onclick="setRange('all',this)">ทั้งหมด</button>
-  <div class="filter-sep"></div>
-  <label>กำหนดเอง:</label>
-  <input type="date" id="dateFrom">
-  <span style="color:#475569;font-size:12px">ถึง</span>
-  <input type="date" id="dateTo">
-  <button class="apply-btn" onclick="applyCustomRange()">ดู</button>
+  <button class="refresh-btn" id="refreshBtn" onclick="loadData()">🔄</button>
 </div>
 
-<div id="content"><div class="loading-txt">⏳ กำลังโหลด...</div></div>
+<div id="app"></div>
 
 <script>
-const LOGGER_URL = 'https://script.google.com/macros/s/AKfycbxz4Ha1sPN2xy1qTNiba0-vg1KYFaq36uTuddbphGfr3DR0eX5WOagqkxPZut-Zb3eOQA/exec';
+  const LOGGER_URL = 'https://script.google.com/macros/s/AKfycbxz4Ha1sPN2xy1qTNiba0-vg1KYFaq36uTuddbphGfr3DR0eX5WOagqkxPZut-Zb3eOQA/exec';
 
-let allRows = [];
-let currentRange = 'today';
-let customFrom = null, customTo = null;
-
-// ── Helpers ──────────────────────────────────────────────
-function parseUA(ua) {
-  if (/Mobile|Android|iPhone/.test(ua)) return '📱 Mobile';
-  if (/iPad|Tablet/.test(ua)) return '📱 Tablet';
-  return '🖥️ Desktop';
-}
-function parseBrowser(ua) {
-  if (/Edg\//.test(ua)) return 'Edge';
-  if (/OPR\/|Opera/.test(ua)) return 'Opera';
-  if (/Chrome\//.test(ua)) return 'Chrome';
-  if (/Firefox\//.test(ua)) return 'Firefox';
-  if (/Safari\//.test(ua)) return 'Safari';
-  return 'Other';
-}
-function parseRef(ref) {
-  if (!ref) return 'Direct';
-  try { return new URL(ref).hostname; } catch { return ref.slice(0,30); }
-}
-function countBy(rows, fn) {
-  const m = {};
-  rows.forEach(r => { const k = fn(r); m[k] = (m[k]||0)+1; });
-  return Object.entries(m).sort((a,b) => b[1]-a[1]);
-}
-
-// แปลง "2026-03-24 5:12:33" → Date object (ถือว่าเป็นเวลาไทยอยู่แล้ว)
-function toLocalDate(str) {
-  if (!str) return null;
-  const s = String(str).trim();
-  const m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{2}):(\d{2})/);
-  if (m) {
-    return new Date(
-      parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3]),
-      parseInt(m[4]), parseInt(m[5]), parseInt(m[6])
-    );
+  function getBKKNow() {
+    return new Date(Date.now() + 7 * 3600000);
   }
-  const d = new Date(s.replace(' ','T'));
-  return isNaN(d) ? null : d;
-}
 
-function dateKey(str) {
-  const d = toLocalDate(str);
-  if (!d) return '';
-  return d.getFullYear() + '-' +
-    String(d.getMonth()+1).padStart(2,'0') + '-' +
-    String(d.getDate()).padStart(2,'0');
-}
-
-function hourKey(str) {
-  const d = toLocalDate(str);
-  return d ? d.getHours() : -1;
-}
-
-function fmtDate(str) {
-  const d = toLocalDate(str);
-  if (!d) return str;
-  return d.toLocaleString('th-TH', {
-    year: 'numeric', month: 'short', day: 'numeric',
-    hour: '2-digit', minute: '2-digit'
-  });
-}
-
-// วันที่ล่าสุดในข้อมูล (ใช้แทน "วันนี้" เพื่อหลีกเลี่ยงปัญหา timezone)
-function getLatestDateInData() {
-  if (!allRows || allRows.length === 0) return getTodayTH();
-  const dates = allRows.map(r => dateKey(r.time)).filter(d => d !== '').sort();
-  return dates[dates.length - 1];
-}
-
-// วันที่ปัจจุบันเวลาไทย (fallback)
-function getTodayTH() {
-  return new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Bangkok',
-    year: 'numeric', month: '2-digit', day: '2-digit'
-  }).format(new Date());
-}
-
-function shiftDate(dateStr, days) {
-  const d = new Date(dateStr + 'T00:00:00');
-  d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0,10);
-}
-
-// ── Filter ───────────────────────────────────────────────
-function filterRows(rows) {
-  // "วันนี้" = วันล่าสุดในข้อมูล ป้องกัน timezone ต่างกัน
-  const todayStr = getLatestDateInData();
-
-  if (customFrom && customTo) {
-    return rows.filter(r => { const d = dateKey(r.time); return d >= customFrom && d <= customTo; });
+  function todayStr() {
+    return getBKKNow().toISOString().slice(0, 10);
   }
-  if (currentRange === 'today') return rows.filter(r => dateKey(r.time) === todayStr);
-  if (currentRange === '7d') {
-    const from = shiftDate(todayStr, -6);
-    return rows.filter(r => dateKey(r.time) >= from);
+
+  function parseUA(ua = '') {
+    if (/Mobile|Android|iPhone/.test(ua)) return { icon: '📱', label: 'Mobile' };
+    if (/iPad|Tablet/.test(ua)) return { icon: '📱', label: 'Tablet' };
+    return { icon: '🖥️', label: 'Desktop' };
   }
-  if (currentRange === '30d') {
-    const from = shiftDate(todayStr, -29);
-    return rows.filter(r => dateKey(r.time) >= from);
+
+  function parseBrowser(ua = '') {
+    if (/Edg\//.test(ua)) return 'Edge';
+    if (/OPR\/|Opera/.test(ua)) return 'Opera';
+    if (/Chrome\//.test(ua)) return 'Chrome';
+    if (/Firefox\//.test(ua)) return 'Firefox';
+    if (/Safari\//.test(ua)) return 'Safari';
+    return 'Other';
   }
-  return rows;
-}
 
-function setRange(r, btn) {
-  currentRange = r; customFrom = null; customTo = null;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  render(allRows);
-}
-function applyCustomRange() {
-  customFrom = document.getElementById('dateFrom').value;
-  customTo = document.getElementById('dateTo').value;
-  if (!customFrom || !customTo) return;
-  currentRange = null;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  render(allRows);
-}
+  function parseRef(ref = '') {
+    if (!ref) return 'Direct';
+    try { return new URL(ref).hostname.replace('www.', ''); } catch { return 'Unknown'; }
+  }
 
-// ── Bar List ─────────────────────────────────────────────
-function barList(entries, colorClass='') {
-  const max = entries[0]?.[1] || 1;
-  return entries.slice(0,8).map(([name,count]) => `
-    <div class="bar-item">
-      <div class="name" title="${name}">${name}</div>
-      <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${(count/max*100).toFixed(1)}%"></div></div>
-      <div class="count">${count}</div>
-    </div>`).join('');
-}
+  function formatTime(timeStr) {
+    // timeStr: "2025-06-20 14:35:22"
+    const parts = String(timeStr).split(' ');
+    return parts[1] ? parts[1].slice(0, 5) : String(timeStr).slice(11, 16);
+  }
 
-// ── Daily Chart ───────────────────────────────────────────
-let dailyChart = null;
-function renderDailyChart(rows) {
-  const counts = {};
-  rows.forEach(r => { const d = dateKey(r.time); if(d) counts[d]=(counts[d]||0)+1; });
-  const sorted = Object.entries(counts).sort((a,b) => a[0]>b[0]?1:-1);
-  const labels = sorted.map(([d]) => {
-    const [y,mo,day] = d.split('-');
-    return new Date(+y, +mo-1, +day).toLocaleDateString('th-TH',{month:'short',day:'numeric'});
-  });
-  const data = sorted.map(([,v]) => v);
-  const ctx = document.getElementById('dailyChart');
-  if (!ctx) return;
-  if (dailyChart) dailyChart.destroy();
-  dailyChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{ label:'ผู้เข้าชม', data, backgroundColor:'#0ea5e9aa', borderColor:'#38bdf8', borderWidth:1, borderRadius:4 }]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { display:false } },
-      scales: {
-        x: { ticks:{color:'#64748b',font:{size:11}}, grid:{color:'#1e293b'} },
-        y: { ticks:{color:'#64748b',font:{size:11}}, grid:{color:'#1e293b22'}, beginAtZero:true }
-      }
+  function buildHourlyData(todayRows) {
+    const hours = Array(24).fill(0);
+    todayRows.forEach(r => {
+      const t = String(r.time);
+      const hPart = t.split(' ')[1] || t.slice(11, 13);
+      const h = parseInt(hPart.slice(0, 2));
+      if (!isNaN(h) && h >= 0 && h < 24) hours[h]++;
+    });
+    return hours;
+  }
+
+  function renderChart(hourly) {
+    const currentHour = getBKKNow().getHours();
+    const max = Math.max(...hourly, 1);
+    const peakHour = hourly.indexOf(Math.max(...hourly));
+
+    const bars = hourly.map((count, h) => {
+      const pct = Math.max((count / max) * 100, count > 0 ? 8 : 3);
+      const isCurrent = h === currentHour;
+      const hasData = count > 0;
+      const cls = isCurrent ? 'current' : hasData ? 'has-data' : '';
+      // Show labels every 4 hours: 0,4,8,12,16,20
+      const showLabel = h % 4 === 0;
+      return `
+        <div class="chart-col">
+          <div class="chart-bar ${cls}" style="height:${pct}%" title="${h}:00 — ${count} ครั้ง"></div>
+          <div class="chart-label">${showLabel ? String(h).padStart(2,'0') : ''}</div>
+        </div>`;
+    }).join('');
+
+    const peakLabel = max > 1
+      ? `ช่วงคนมากสุด ${String(peakHour).padStart(2,'0')}:00 · ${Math.max(...hourly)} ครั้ง`
+      : 'ยังไม่มีข้อมูลวันนี้';
+
+    return `
+      <div class="chart-wrap">
+        <div class="chart-bars">${bars}</div>
+        <div class="chart-peak">${peakLabel}</div>
+      </div>`;
+  }
+
+  function renderLog(todayRows) {
+    if (todayRows.length === 0) return `
+      <div class="empty-state">
+        <span class="emoji">🌙</span>
+        ยังไม่มีผู้เข้าชมวันนี้
+      </div>`;
+
+    return [...todayRows].reverse().map((r, i) => {
+      const dev = parseUA(r.ua);
+      const browser = parseBrowser(r.ua);
+      const ref = parseRef(r.ref);
+      const t = formatTime(r.time);
+      return `
+        <div class="log-item" style="animation-delay:${i * 30}ms">
+          <div class="log-icon">${dev.icon}</div>
+          <div class="log-info">
+            <div class="log-time">${t}</div>
+            <div class="log-detail">${browser} · ${ref}</div>
+          </div>
+          <div class="log-badge">${dev.label}</div>
+        </div>`;
+    }).join('');
+  }
+
+  function render(data) {
+    const rows = data.rows || [];
+    const today = todayStr();
+    const todayRows = rows.filter(r => String(r.time).startsWith(today));
+    const hourly = buildHourlyData(todayRows);
+    const totalAll = rows.length;
+    const totalToday = todayRows.length;
+    const currentHour = getBKKNow().getHours();
+    const thisHour = hourly[currentHour];
+
+    const bkkDate = getBKKNow().toLocaleDateString('th-TH', {
+      weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
+    });
+
+    document.getElementById('app').innerHTML = `
+      <div class="date-badge">${bkkDate}</div>
+
+      <div class="cards">
+        <div class="card highlight">
+          <div class="c-label">วันนี้</div>
+          <div class="c-value">${totalToday}</div>
+          <div class="c-sub">ครั้ง</div>
+        </div>
+        <div class="card">
+          <div class="c-label">ทั้งหมด</div>
+          <div class="c-value">${totalAll}</div>
+          <div class="c-sub">ตั้งแต่ต้น</div>
+        </div>
+        <div class="card">
+          <div class="c-label">ชั่วโมงนี้</div>
+          <div class="c-value">${thisHour}</div>
+          <div class="c-sub">${String(currentHour).padStart(2,'0')}:00 น.</div>
+        </div>
+        <div class="card">
+          <div class="c-label">ช่วงนี้</div>
+          <div class="c-value" style="font-size:20px;margin-top:10px">${todayRows.length > 0 ? parseUA(todayRows[todayRows.length-1].ua).icon : '—'}</div>
+          <div class="c-sub">ล่าสุด ${todayRows.length > 0 ? formatTime(todayRows[todayRows.length-1].time) : '-'}</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">การเข้าชมรายชั่วโมง</div>
+        ${renderChart(hourly)}
+      </div>
+
+      <div class="section">
+        <div class="section-title">รายการวันนี้ (${totalToday})</div>
+        <div class="log-list">
+          ${renderLog(todayRows)}
+        </div>
+      </div>
+    `;
+  }
+
+  async function loadData() {
+    const btn = document.getElementById('refreshBtn');
+    btn.classList.add('spinning');
+    try {
+      const res = await fetch(LOGGER_URL + '?action=data');
+      const data = await res.json();
+      render(data);
+      const t = getBKKNow();
+      const hh = String(t.getHours()).padStart(2, '0');
+      const mm = String(t.getMinutes()).padStart(2, '0');
+      document.getElementById('lastUpdate').textContent = `อัปเดต ${hh}:${mm} น.`;
+    } catch (e) {
+      document.getElementById('app').innerHTML = `
+        <div class="empty-state">
+          <span class="emoji">❌</span>
+          โหลดข้อมูลไม่ได้<br>ตรวจสอบ LOGGER_URL อีกครั้ง
+        </div>`;
+      document.getElementById('lastUpdate').textContent = 'โหลดไม่สำเร็จ';
+    } finally {
+      btn.classList.remove('spinning');
     }
-  });
-}
-
-// ── Heatmap ───────────────────────────────────────────────
-function renderHeatmap(rows) {
-  const counts = Array(24).fill(0);
-  rows.forEach(r => { const h = hourKey(r.time); if(h>=0) counts[h]++; });
-  const max = Math.max(...counts, 1);
-  const cells = counts.map((c,h) => {
-    const bg = c === 0 ? '#0f172a' : `rgba(14,165,233,${(c/max*0.85+0.15).toFixed(2)})`;
-    return `<div class="hm-cell" style="background:${bg}" title="${h}:00 น. — ${c} ครั้ง"></div>`;
-  }).join('');
-  const el = document.getElementById('heatmapCells');
-  if (el) el.innerHTML = cells;
-}
-
-// ── Render ────────────────────────────────────────────────
-function render(rows) {
-  const filtered = filterRows(rows);
-  const total    = filtered.length;
-  const totalAll = rows.length;
-  const returning = filtered.filter(r => r.visitor === 'returning').length;
-  const newV      = total - returning;
-  const retPct    = total ? Math.round(returning/total*100) : 0;
-
-  const devices   = countBy(filtered, r => parseUA(r.ua));
-  const browsers  = countBy(filtered, r => parseBrowser(r.ua));
-  const refs      = countBy(filtered, r => parseRef(r.ref));
-  const langs     = countBy(filtered, r => (r.lang||'Unknown').split('-')[0].toUpperCase());
-  const countries = countBy(filtered, r => r.country || '(ไม่ทราบ)');
-  const cities    = countBy(filtered, r => r.city || '(ไม่ทราบ)');
-  const recent    = [...filtered].reverse().slice(0,50);
-
-  document.getElementById('content').innerHTML = `
-    <div class="cards">
-      <div class="card">
-        <div class="label">เข้าชม (ช่วงที่เลือก)</div>
-        <div class="value">${total}</div>
-        <div class="sub">ทั้งหมด ${totalAll} ครั้ง</div>
-      </div>
-      <div class="card green">
-        <div class="label">New Visitor</div>
-        <div class="value">${newV}</div>
-        <div class="sub">${total ? Math.round(newV/total*100) : 0}% ของช่วงนี้</div>
-      </div>
-      <div class="card purple">
-        <div class="label">Returning Visitor</div>
-        <div class="value">${returning}</div>
-        <div class="sub">${retPct}% ของช่วงนี้</div>
-      </div>
-      <div class="card">
-        <div class="label">อุปกรณ์หลัก</div>
-        <div class="value" style="font-size:18px;margin-top:10px">${devices[0]?.[0]||'-'}</div>
-        <div class="sub">${devices[0]?.[1]||0} ครั้ง</div>
-      </div>
-      <div class="card orange">
-        <div class="label">Browser หลัก</div>
-        <div class="value" style="font-size:18px;margin-top:10px">${browsers[0]?.[0]||'-'}</div>
-        <div class="sub">${browsers[0]?.[1]||0} ครั้ง</div>
-      </div>
-    </div>
-
-    <div class="section"><h2>📈 ผู้เข้าชมรายวัน</h2></div>
-    <div class="chart-wrap"><canvas id="dailyChart"></canvas></div>
-
-    <div class="section" style="padding-bottom:8px"><h2>🕐 ช่วงเวลาที่นิยมเข้า (เวลาไทย)</h2></div>
-    <div class="heatmap-wrap">
-      <div class="heatmap" id="heatmapCells"></div>
-      <div class="hm-label">
-        <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>23:00</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:6px;margin-top:10px">
-        <span style="font-size:11px;color:#475569">น้อย</span>
-        <div style="display:flex;gap:2px">${[0.1,0.3,0.5,0.7,0.9,1].map(v=>`<div style="width:14px;height:14px;border-radius:2px;background:rgba(14,165,233,${v.toFixed(1)})"></div>`).join('')}</div>
-        <span style="font-size:11px;color:#475569">มาก</span>
-      </div>
-    </div>
-
-    <div class="grid-2">
-      <div class="section"><h2>📱 อุปกรณ์</h2><div class="bar-list">${barList(devices)}</div></div>
-      <div class="section"><h2>🌐 Browser</h2><div class="bar-list">${barList(browsers,'purple')}</div></div>
-      <div class="section"><h2>🔗 มาจากไหน (Referrer)</h2><div class="bar-list">${barList(refs,'green')}</div></div>
-      <div class="section"><h2>💬 ภาษา Browser</h2><div class="bar-list">${barList(langs)}</div></div>
-    </div>
-
-    <div class="grid-2">
-      <div class="section">
-        <h2>🌍 ประเทศ</h2>
-        <div class="country-list">
-          ${countries.slice(0,8).map(([n,c])=>`<div class="country-item"><span class="cname">${n}</span><span class="ccount">${c}</span></div>`).join('')}
-        </div>
-      </div>
-      <div class="section">
-        <h2>📍 เมือง</h2>
-        <div class="country-list">
-          ${cities.slice(0,8).map(([n,c])=>`<div class="country-item"><span class="cname">${n}</span><span class="ccount">${c}</span></div>`).join('')}
-        </div>
-      </div>
-    </div>
-
-    <div class="section"><h2>📋 รายการล่าสุด (50 รายการ)</h2></div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>วันที่ / เวลา</th><th>ประเภท</th><th>อุปกรณ์</th><th>Browser</th><th>มาจาก</th><th>ประเทศ</th><th>เมือง</th><th>หน้าจอ</th></tr></thead>
-        <tbody>
-          ${recent.map(r=>`<tr>
-            <td>${fmtDate(r.time)}</td>
-            <td><span class="badge ${r.visitor||'new'}">${r.visitor==='returning'?'กลับมา':'ใหม่'}</span></td>
-            <td>${parseUA(r.ua)}</td>
-            <td>${parseBrowser(r.ua)}</td>
-            <td>${parseRef(r.ref)}</td>
-            <td>${r.country||'-'}</td>
-            <td>${r.city||'-'}</td>
-            <td>${r.screen||'-'}</td>
-          </tr>`).join('')}
-        </tbody>
-      </table>
-    </div>
-  `;
-
-  renderDailyChart(filtered);
-  renderHeatmap(filtered);
-}
-
-// ── Load ──────────────────────────────────────────────────
-async function loadData() {
-  try {
-    const res = await fetch(LOGGER_URL + '?action=data');
-    const data = await res.json();
-    allRows = data.rows || [];
-
-    // set date inputs หลัง allRows พร้อมแล้ว ใช้วันล่าสุดในข้อมูล
-    const latestDay = getLatestDateInData();
-    document.getElementById('dateFrom').value = shiftDate(latestDay, -6);
-    document.getElementById('dateTo').value   = latestDay;
-
-    render(allRows);
-    document.getElementById('lastUpdate').textContent =
-      'อัปเดต: ' + new Date().toLocaleTimeString('th-TH');
-  } catch(e) {
-    document.getElementById('content').innerHTML =
-      '<div class="loading-txt">❌ โหลดข้อมูลไม่ได้ — ตรวจสอบ LOGGER_URL</div>';
   }
-}
 
-loadData();
+  loadData();
 </script>
 </body>
 </html>
