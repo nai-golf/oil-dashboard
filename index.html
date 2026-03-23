@@ -165,20 +165,46 @@ function fmtDate(str) {
   });
 }
 function toLocalDate(str) {
-  const d = new Date(String(str).replace(' ','T'));
-  if (isNaN(d)) return null;
-  // คืน Date object เวลาไทย (ใช้ offset +7)
-  return new Date(d.getTime() + 7*60*60*1000);
+  if (!str) return null;
+  const s = String(str).trim();
+  
+  // รองรับ "2026-03-24 5:12:33" และ "2026-03-24 05:12:33"
+  const m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{2}):(\d{2})/);
+  if (m) {
+    // สร้าง Date โดยถือว่าเวลาใน Sheet คือเวลาไทยอยู่แล้ว (Apps Script บันทึก UTC+7)
+    return new Date(
+      parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3]),
+      parseInt(m[4]), parseInt(m[5]), parseInt(m[6])
+    );
+  }
+  
+  // fallback ISO
+  const d = new Date(s.replace(' ', 'T'));
+  return isNaN(d) ? null : d;
 }
+
 function dateKey(str) {
   const d = toLocalDate(str);
   if (!d) return '';
-  return d.toISOString().slice(0,10);
+  const y = d.getFullYear();
+  const mo = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${mo}-${day}`;
 }
+
 function hourKey(str) {
   const d = toLocalDate(str);
   if (!d) return -1;
-  return d.getUTCHours(); // หลัง +7 แล้ว
+  return d.getHours(); // ใช้ local hours ตรงๆ (ไม่ต้อง +7 แล้ว)
+}
+
+function fmtDate(str) {
+  const d = toLocalDate(str);
+  if (!d) return str;
+  return d.toLocaleString('th-TH', {
+    year: 'numeric', month: 'short', day: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
 }
 
 // ── Filter ───────────────────────────────────────────────
