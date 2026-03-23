@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Oil Visits</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+    
+    header { padding: 24px 32px; border-bottom: 1px solid #1e293b; }
+    header h1 { font-size: 20px; font-weight: 600; color: #f8fafc; }
+    header p { font-size: 13px; color: #64748b; margin-top: 4px; }
+
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; padding: 24px 32px 0; }
+    .card { background: #1e293b; border-radius: 12px; padding: 20px; }
+    .card .label { font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: .5px; }
+    .card .value { font-size: 36px; font-weight: 700; color: #38bdf8; margin-top: 6px; }
+    .card .sub { font-size: 12px; color: #475569; margin-top: 4px; }
+
+    .section { padding: 24px 32px; }
+    .section h2 { font-size: 14px; font-weight: 600; color: #94a3b8; margin-bottom: 12px; text-transform: uppercase; letter-spacing: .5px; }
+
+    .bar-list { display: flex; flex-direction: column; gap: 8px; }
+    .bar-item { display: flex; align-items: center; gap: 12px; }
+    .bar-item .name { font-size: 13px; color: #cbd5e1; width: 120px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bar-track { flex: 1; height: 8px; background: #1e293b; border-radius: 4px; overflow: hidden; }
+    .bar-fill { height: 100%; background: #38bdf8; border-radius: 4px; transition: width .6s ease; }
+    .bar-item .count { font-size: 12px; color: #64748b; width: 32px; text-align: right; }
+
+    .log-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .log-table th { text-align: left; color: #64748b; font-weight: 500; padding: 8px 12px; border-bottom: 1px solid #1e293b; }
+    .log-table td { padding: 8px 12px; border-bottom: 1px solid #1e293b22; color: #cbd5e1; }
+    .log-table tr:hover td { background: #1e293b; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+    @media(max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } .cards { padding: 16px; } .section { padding: 16px; } }
+
+    .loading { text-align: center; padding: 60px; color: #475569; }
+    .refresh-btn { background: #1e293b; border: 1px solid #334155; color: #94a3b8; padding: 6px 14px; border-radius: 6px; font-size: 13px; cursor: pointer; float: right; }
+    .refresh-btn:hover { background: #334155; }
+    .last-update { font-size: 11px; color: #475569; margin-top: 6px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex;align-items:flex-start;justify-content:space-between">
+    <div>
+      <h1>📊 Oil Dashboard</h1>
+      <p>สถิติผู้เข้าชม nai-golf.github.io/oil</p>
+    </div>
+    <button class="refresh-btn" onclick="loadData()">🔄 Refresh</button>
+  </div>
+  <div class="last-update" id="lastUpdate"></div>
+</header>
+
+<div id="content"><div class="loading">⏳ กำลังโหลดข้อมูล...</div></div>
+
+<script>
+  const LOGGER_URL = 'https://script.google.com/macros/s/AKfycbxz4Ha1sPN2xy1qTNiba0-vg1KYFaq36uTuddbphGfr3DR0eX5WOagqkxPZut-Zb3eOQA/exec'; // ← ใส่ URL เดิมจาก Step 1
+
+  function parseUA(ua) {
+    if (/Mobile|Android|iPhone/.test(ua)) return '📱 Mobile';
+    if (/iPad|Tablet/.test(ua)) return '📱 Tablet';
+    return '🖥️ Desktop';
+  }
+
+  function parseBrowser(ua) {
+    if (/Edg\//.test(ua)) return 'Edge';
+    if (/OPR\/|Opera/.test(ua)) return 'Opera';
+    if (/Chrome\//.test(ua)) return 'Chrome';
+    if (/Firefox\//.test(ua)) return 'Firefox';
+    if (/Safari\//.test(ua)) return 'Safari';
+    return 'Other';
+  }
+
+  function parseRef(ref) {
+    if (!ref) return 'Direct';
+    try { return new URL(ref).hostname; } catch { return ref.slice(0, 30); }
+  }
+
+  function countBy(rows, fn) {
+    const m = {};
+    rows.forEach(r => { const k = fn(r); m[k] = (m[k] || 0) + 1; });
+    return Object.entries(m).sort((a,b) => b[1]-a[1]);
+  }
+
+  function barList(entries) {
+    const max = entries[0]?.[1] || 1;
+    return entries.slice(0, 8).map(([name, count]) => `
+      <div class="bar-item">
+        <div class="name" title="${name}">${name}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${(count/max*100).toFixed(1)}%"></div></div>
+        <div class="count">${count}</div>
+      </div>`).join('');
+  }
+
+  function todayCount(rows) {
+    const today = new Date();
+    const bkkNow = new Date(today.getTime() + 7*60*60*1000);
+    const dateStr = bkkNow.toISOString().slice(0,10);
+    return rows.filter(r => String(r.time).startsWith(dateStr)).length;
+  }
+
+  function render(data) {
+    const rows = data.rows || [];
+    if (rows.length === 0) {
+      document.getElementById('content').innerHTML = '<div class="loading">ยังไม่มีข้อมูล — รอให้มีคนเข้าเว็บก่อนนะครับ</div>';
+      return;
+    }
+
+    const devices  = countBy(rows, r => parseUA(r.ua));
+    const browsers = countBy(rows, r => parseBrowser(r.ua));
+    const refs     = countBy(rows, r => parseRef(r.ref));
+    const screens  = countBy(rows, r => r.screen || 'Unknown');
+    const langs    = countBy(rows, r => (r.lang || 'Unknown').split('-')[0].toUpperCase());
+    const recent   = [...rows].reverse().slice(0, 50);
+
+    document.getElementById('content').innerHTML = `
+      <div class="cards">
+        <div class="card">
+          <div class="label">เข้าชมทั้งหมด</div>
+          <div class="value">${rows.length}</div>
+          <div class="sub">ตั้งแต่เริ่มต้น</div>
+        </div>
+        <div class="card">
+          <div class="label">วันนี้</div>
+          <div class="value">${todayCount(rows)}</div>
+          <div class="sub">เวลาไทย (UTC+7)</div>
+        </div>
+        <div class="card">
+          <div class="label">อุปกรณ์หลัก</div>
+          <div class="value" style="font-size:22px;margin-top:10px">${devices[0]?.[0] || '-'}</div>
+          <div class="sub">${devices[0]?.[1] || 0} ครั้ง</div>
+        </div>
+        <div class="card">
+          <div class="label">Browser หลัก</div>
+          <div class="value" style="font-size:22px;margin-top:10px">${browsers[0]?.[0] || '-'}</div>
+          <div class="sub">${browsers[0]?.[1] || 0} ครั้ง</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="section">
+          <h2>อุปกรณ์</h2>
+          <div class="bar-list">${barList(devices)}</div>
+        </div>
+        <div class="section">
+          <h2>Browser</h2>
+          <div class="bar-list">${barList(browsers)}</div>
+        </div>
+        <div class="section">
+          <h2>มาจากไหน (Referrer)</h2>
+          <div class="bar-list">${barList(refs)}</div>
+        </div>
+        <div class="section">
+          <h2>ภาษา Browser</h2>
+          <div class="bar-list">${barList(langs)}</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>รายการล่าสุด (50 รายการ)</h2>
+        <div style="overflow-x:auto">
+          <table class="log-table">
+            <thead><tr><th>เวลา</th><th>อุปกรณ์</th><th>Browser</th><th>มาจาก</th><th>หน้าจอ</th></tr></thead>
+            <tbody>
+              ${recent.map(r => `<tr>
+                <td>${r.time}</td>
+                <td>${parseUA(r.ua)}</td>
+                <td>${parseBrowser(r.ua)}</td>
+                <td>${parseRef(r.ref)}</td>
+                <td>${r.screen || '-'}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  async function loadData() {
+    try {
+      document.getElementById('lastUpdate').textContent = '';
+      const res = await fetch(LOGGER_URL + '?action=data');
+      const data = await res.json();
+      render(data);
+      document.getElementById('lastUpdate').textContent = 'อัปเดตล่าสุด: ' + new Date().toLocaleTimeString('th-TH');
+    } catch(e) {
+      document.getElementById('content').innerHTML = '<div class="loading">❌ โหลดข้อมูลไม่ได้ — ตรวจสอบ LOGGER_URL อีกครั้ง</div>';
+    }
+  }
+
+  loadData();
+</script>
+</body>
+</html>
