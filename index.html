@@ -207,11 +207,34 @@ function fmtDate(str) {
   });
 }
 
+
+function getTodayTH() {
+  // ใช้ Intl เพื่อให้ได้วันที่ไทยจริงๆ ไม่ว่า browser จะอยู่ timezone ไหน
+  const now = new Date();
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Bangkok',
+    year: 'numeric', month: '2-digit', day: '2-digit'
+  }).format(now); // คืน "2026-03-24"
+  return parts;
+}
+
+function shiftDate(dateStr, days) {
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+
+
+
+
+
+
+  
 // ── Filter ───────────────────────────────────────────────
 function filterRows(rows) {
-  const now = new Date();
-  const bkkNow = new Date(now.getTime() + 7*60*60*1000);
-  const todayStr = bkkNow.toISOString().slice(0,10);
+  // คำนวณ "วันนี้" เวลาไทยจาก server time ของ row ล่าสุด
+  const todayStr = getTodayTH();
 
   if (customFrom && customTo) {
     return rows.filter(r => {
@@ -221,14 +244,14 @@ function filterRows(rows) {
   }
   if (currentRange === 'today') return rows.filter(r => dateKey(r.time) === todayStr);
   if (currentRange === '7d') {
-    const from = new Date(bkkNow - 6*86400000).toISOString().slice(0,10);
+    const from = shiftDate(todayStr, -6);
     return rows.filter(r => dateKey(r.time) >= from);
   }
   if (currentRange === '30d') {
-    const from = new Date(bkkNow - 29*86400000).toISOString().slice(0,10);
+    const from = shiftDate(todayStr, -29);
     return rows.filter(r => dateKey(r.time) >= from);
   }
-  return rows; // all
+  return rows;
 }
 
 function setRange(r) {
@@ -442,8 +465,8 @@ async function loadData() {
 }
 
 // set default date inputs
-const today = new Date(Date.now() + 7*60*60*1000).toISOString().slice(0,10);
-const week  = new Date(Date.now() + 7*60*60*1000 - 6*86400000).toISOString().slice(0,10);
+const today = getTodayTH();
+const week  = shiftDate(today, -6);
 document.getElementById('dateFrom').value = week;
 document.getElementById('dateTo').value   = today;
 
